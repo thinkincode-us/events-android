@@ -10,15 +10,16 @@ import android.widget.TextView;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.Entity;
+import com.thinkincode.events_android.model.Event;
 
 import java.util.List;
 
 public class UserHistoryAdapter extends RecyclerView.Adapter <UserHistoryAdapter.ViewHolderUser>{
-    private List<Entity> listEntities;
+    private List<Event> listEvents;
     private LayoutInflater layoutInflater;
 
-    UserHistoryAdapter(Context ctx, List<Entity> listEntities) {
-        this.listEntities = listEntities;
+    UserHistoryAdapter(Context ctx, List<Event> listEvents) {
+        this.listEvents = listEvents;
         this.layoutInflater= LayoutInflater.from(ctx);
 
     }
@@ -32,12 +33,12 @@ public class UserHistoryAdapter extends RecyclerView.Adapter <UserHistoryAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderUser viewHolderUser, int position) {
-        viewHolderUser.name.setText(listEntities.get(position).getName());
+        viewHolderUser.name.setText(listEvents.get(position).getName());
     }
 
     @Override
     public int getItemCount() {
-        return listEntities.size();
+        return listEvents.size();
     }
 
     public class ViewHolderUser extends RecyclerView.ViewHolder implements View

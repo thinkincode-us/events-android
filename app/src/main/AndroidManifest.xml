@@ -26,7 +26,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.AddEntityActivity" />
-        <activity android:name=".view.RecyclerEntities">
+        <activity android:name=".view.Register" />
+        <activity android:name=".view.RecyclerEvents">
         </activity>
     </application>
 

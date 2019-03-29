@@ -282,6 +282,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    public void gotoRegistration(View view) {
+        Intent intent = new Intent( LoginActivity.this, Register.class);
+        startActivity(intent);
+    }
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -321,7 +325,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         if (response.body() != null)
                         {
                             authenticationToken = response.body();
-                            Intent intent = new Intent(LoginActivity.this, RecyclerEntities.class);
+                            Intent intent = new Intent(LoginActivity.this, RecyclerEvents.class);
                             intent.putExtra("authenticationToken", authenticationToken);
                             startActivity(intent);
                         }
