@@ -33,7 +33,7 @@ public class Register extends AppCompatActivity {
         lastName= findViewById(R.id.surname);
 
         phone= findViewById(R.id.phone);
-        email= findViewById(R.id.email);
+        email= findViewById(R.id.username);
         password=findViewById(R.id.password);
 
         passwordCopy=findViewById(R.id.confirmpassword);
