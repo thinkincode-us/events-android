@@ -306,6 +306,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mEmail;
         private final String mPassword;
 
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;

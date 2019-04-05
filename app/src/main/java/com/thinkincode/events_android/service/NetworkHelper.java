@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkHelper {
 
-    private static final String BASE_URL = "http://172.17.0.2:8080";
+    private static final String BASE_URL = "http://10.0.2.2:8080";
 
     static final Gson gson = new GsonBuilder()
             .setLenient()
