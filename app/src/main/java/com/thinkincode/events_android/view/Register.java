@@ -101,6 +101,7 @@ public class Register extends AppCompatActivity {
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.body()!=null) {
                     messageUser("User register");
+                    finish();
                 }else {
                     messageUser("Error in register");
                 }
