@@ -296,6 +296,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
     }
+    void messageUser(String message){
+        Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
+    }
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -329,6 +332,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Intent intent = new Intent(LoginActivity.this, RecyclerEvents.class);
                             intent.putExtra("authenticationToken", authenticationToken);
                             startActivity(intent);
+                        }else{
+                            if (response.message().contains("Unauthorized")){
+                                messageUser("Password or User incorrect");
+                            }
                         }
                     }
 
@@ -352,9 +359,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                finish();
-            } else {
+            if (!success)  {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }

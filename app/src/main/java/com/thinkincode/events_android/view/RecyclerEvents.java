@@ -73,9 +73,11 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
             result.enqueue(new Callback<List<Event>>() {
                 @Override
                 public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
-                    listEvents = response.body();
-                    adapter = new UserHistoryAdapter(RecyclerEvents.this, listEvents);
-                    recycler.setAdapter(adapter);
+                    if (response.body() != null) {
+                        listEvents = response.body();
+                        adapter = new UserHistoryAdapter(RecyclerEvents.this, listEvents);
+                        recycler.setAdapter(adapter);
+                    }
                 }
 
                 @Override
