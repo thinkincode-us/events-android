@@ -111,12 +111,22 @@ public class Register extends AppCompatActivity {
         if (flagIsEmpty) {
             messageUser("Required data is empty");
             return;
+        }     if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
+            messageUser("Password isn't match");
+            return;
         }
 
         if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
             messageUser("Password isn't match");
             return;
         }
+
+        if ( !PasswordValidator.validate(password.getText().toString()) ) {
+            messageUser("Password isn't well structured");
+            return;
+        }
+
+
 
         if (!isValidEmail(email.getText().toString())) {
 
@@ -138,7 +148,7 @@ public class Register extends AppCompatActivity {
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.body() != null) {
                     messageUser("User registered");
-                    finish();
+                   finish();
                 } else {
                     messageUser("Error in register");
                 }
