@@ -5,6 +5,7 @@ import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.User;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface EventsAPIService {
@@ -31,5 +33,11 @@ public interface EventsAPIService {
 
     @POST("/api/v1/account/register")
     Call<User> registerUser (@Body User user);
+
+    @GET("/api/v1/account/users")
+    Call<List<User>> getUsers( @Header("Authorization") String auth);
+
+    @GET("/api/v1/accounts/{accountId}/events")
+    Call<List<Event>> getAccountEvents( @Path("accountId") String accountId, @Header("Authorization") String auth);
 
 }

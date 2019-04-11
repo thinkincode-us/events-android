@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.thinkincode.events_android.R;
-import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
 
 import java.util.List;

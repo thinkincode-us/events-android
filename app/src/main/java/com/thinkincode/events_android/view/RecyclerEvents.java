@@ -11,8 +11,8 @@ import android.view.View;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
-import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
+import com.thinkincode.events_android.model.User;
 import com.thinkincode.events_android.service.EventsAPIService;
 import com.thinkincode.events_android.service.NetworkHelper;
 
@@ -31,6 +31,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     private EventsAPIService apiEntityService = NetworkHelper.create();
     private FloatingActionButton floatingActionButton;
     private AuthenticationToken authenticationToken;
+    List<User> listUsers = new ArrayList<>();
     List<Event> listEvents = new ArrayList<>();
 
     @Override
@@ -69,22 +70,41 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
     private void updateData() {
         try {
-            Call<List<Event>> result = apiEntityService.getEvents( "0dd5bdbf-40b7-48d2-aa64-8fe6f970b491","Bearer " + authenticationToken.getAccessToken());
-            result.enqueue(new Callback<List<Event>>() {
+            Call<List<User>> UserResult = apiEntityService.getUsers( "Bearer " + authenticationToken.getAccessToken());
+            UserResult.enqueue(new Callback<List<User>>() {
                 @Override
-                public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                public void onResponse(Call<List<User>> call, Response<List<User>> response) {
                     if (response.body() != null) {
-                        listEvents = response.body();
-                        adapter = new UserHistoryAdapter(RecyclerEvents.this, listEvents);
-                        recycler.setAdapter(adapter);
+                        listUsers = response.body();
+                        String id = listUsers.get(0).getId();
+
+                        Call<List<Event>> eventsResult = apiEntityService.getAccountEvents( id,"Bearer " + authenticationToken.getAccessToken());
+                        eventsResult.enqueue(new Callback<List<Event>>() {
+                            @Override
+                            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                                if (response.body() != null) {
+                                    listEvents = response.body();
+                                    adapter = new UserHistoryAdapter(RecyclerEvents.this, listEvents);
+                                    recycler.setAdapter(adapter);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<List<Event>> call, Throwable t) {
+
+                            }
+                        });
+
+
                     }
                 }
 
                 @Override
-                public void onFailure(Call<List<Event>> call, Throwable t) {
+                public void onFailure(Call<List<User>> call, Throwable t) {
                     Log.d(TAG, "onCreate: " + t.getMessage());
-
                 }
+
+
             });
         } catch (Exception ex) {
             ex.printStackTrace();
