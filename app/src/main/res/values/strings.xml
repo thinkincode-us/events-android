@@ -16,4 +16,5 @@
     </string>
     <string name="action_register">register</string>
     <string name="policy">The password needs to contain a uppercase, number, some the next characters @#$%! and has 8 to 40 length</string>
+    <string name="password_is_not_match">Password don\'t match</string>
 </resources>

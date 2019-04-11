@@ -26,7 +26,7 @@ import retrofit2.Response;
 public class Register extends AppCompatActivity {
 
     private TextView firstName, lastName, phone, email, password, passwordCopy;
-    private TextView policy;
+    private TextView policy, match;
 
     private EventsAPIService eventsAPIService = NetworkHelper.create();
 
@@ -49,6 +49,7 @@ public class Register extends AppCompatActivity {
         password.addTextChangedListener(textWatcher2);
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
+        match = findViewById(R.id.textViewMatch);
 
     }
 
@@ -93,9 +94,19 @@ public class Register extends AppCompatActivity {
         public void afterTextChanged(Editable s) {
             if (s.length() > 0) {
                 if (!PasswordValidator.validate(s.toString())) {
+                    policy.setText(getApplicationContext().getString(R.string.policy));
                     policy.setVisibility(View.VISIBLE);
                     return;
-                } else policy.setVisibility(View.GONE);
+                } else {
+                    policy.setVisibility(View.GONE);
+                }
+            }
+            String pass1 = password.getText().toString(),pass2 = passwordCopy.getText().toString();
+            if (!pass1.equals(pass2)) {
+                match.setVisibility(View.VISIBLE);
+                match.setText(getApplicationContext().getString(R.string.password_is_not_match));
+            } else {
+                match.setVisibility(View.GONE);
             }
         }
     };
@@ -111,21 +122,21 @@ public class Register extends AppCompatActivity {
         if (flagIsEmpty) {
             messageUser("Required data is empty");
             return;
-        }     if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
-            messageUser("Password isn't match");
-            return;
         }
-
         if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
             messageUser("Password isn't match");
             return;
         }
 
-        if ( !PasswordValidator.validate(password.getText().toString()) ) {
-            messageUser("Password isn't well structured");
+        if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
+            messageUser(getApplicationContext().getString(R.string.password_is_not_match));
             return;
         }
 
+        if (!PasswordValidator.validate(password.getText().toString())) {
+            messageUser("Password isn't well structured");
+            return;
+        }
 
 
         if (!isValidEmail(email.getText().toString())) {
@@ -148,7 +159,7 @@ public class Register extends AppCompatActivity {
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.body() != null) {
                     messageUser("User registered");
-                   finish();
+                    finish();
                 } else {
                     messageUser("Error in register");
                 }
