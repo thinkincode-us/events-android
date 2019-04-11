@@ -26,6 +26,7 @@ import retrofit2.Response;
 public class Register extends AppCompatActivity {
 
     private TextView firstName, lastName, phone, email, password, passwordCopy;
+    private TextView policy, match;
 
     private EventsAPIService eventsAPIService = NetworkHelper.create();
 
@@ -45,9 +46,10 @@ public class Register extends AppCompatActivity {
         firstName.addTextChangedListener(textWatcher);
         lastName.addTextChangedListener(textWatcher);
         email.addTextChangedListener(textWatcher);
-        password.addTextChangedListener(textWatcher);
-        passwordCopy.addTextChangedListener(textWatcher);
-
+        password.addTextChangedListener(textWatcher2);
+        passwordCopy.addTextChangedListener(textWatcher2);
+        policy = findViewById(R.id.textViewPolicy);
+        match = findViewById(R.id.textViewMatch);
 
     }
 
@@ -77,6 +79,38 @@ public class Register extends AppCompatActivity {
 
         }
     };
+    private final TextWatcher textWatcher2 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.length() > 0) {
+                if (!PasswordValidator.validate(s.toString())) {
+                    policy.setText(getApplicationContext().getString(R.string.policy));
+                    policy.setVisibility(View.VISIBLE);
+                    return;
+                } else {
+                    policy.setVisibility(View.GONE);
+                }
+            }
+            String pass1 = password.getText().toString(),pass2 = passwordCopy.getText().toString();
+            if (!pass1.equals(pass2)) {
+                match.setVisibility(View.VISIBLE);
+                match.setText(getApplicationContext().getString(R.string.password_is_not_match));
+            } else {
+                match.setVisibility(View.GONE);
+            }
+        }
+    };
+
 
     void messageUser(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -89,16 +123,21 @@ public class Register extends AppCompatActivity {
             messageUser("Required data is empty");
             return;
         }
-
-        if ( !PasswordValidator.validate(password.getText().toString()) ) {
-            messageUser("Password isn't well structured");
-            return;
-        }
-
         if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
             messageUser("Password isn't match");
             return;
         }
+
+        if (!(password.getText().toString()).equals(passwordCopy.getText().toString())) {
+            messageUser(getApplicationContext().getString(R.string.password_is_not_match));
+            return;
+        }
+
+        if (!PasswordValidator.validate(password.getText().toString())) {
+            messageUser("Password isn't well structured");
+            return;
+        }
+
 
         if (!isValidEmail(email.getText().toString())) {
 
@@ -138,12 +177,12 @@ public class Register extends AppCompatActivity {
 
     public static class PasswordValidator {
 
-        private  static Pattern pattern;
+        private static Pattern pattern;
         private static Matcher matcher;
 
         private static final String PASSWORD_PATTERN = "((?=.*[a-z])(?=.*\\d)(?=.*[A-Z])(?=.*[@#$%!]).{8,40})";
 
-        public  PasswordValidator() {
+        public PasswordValidator() {
 
         }
 
