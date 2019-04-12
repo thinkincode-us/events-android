@@ -1,6 +1,5 @@
 package com.thinkincode.events_android.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,22 +12,18 @@ import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.service.EventsAPIService;
-import com.thinkincode.events_android.service.NetworkHelper;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
+import com.thinkincode.events_android.viewmodel.Messages;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class Register extends AppCompatActivity {
+public class Register extends AppCompatActivity implements EventsAPIServiceViewMode.ListerAnswer {
 
     private TextView firstName, lastName, phone, email, password, passwordCopy;
     private TextView policy, match;
 
-    private EventsAPIService eventsAPIService = NetworkHelper.create();
+    private EventsAPIServiceViewMode eventsAPIServiceViewMode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,7 +45,7 @@ public class Register extends AppCompatActivity {
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-
+        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this);
     }
 
     private boolean flagIsEmpty = true;
@@ -151,27 +146,15 @@ public class Register extends AppCompatActivity {
                 phone.getText().toString(),
                 email.getText().toString(),
                 password.getText().toString());
+        eventsAPIServiceViewMode.registerUser(newUser);
+    }
 
-        Call<User> registerCallback = eventsAPIService.registerUser(newUser);
-
-        registerCallback.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (response.body() != null) {
-                    messageUser("User registered");
-                    finish();
-                } else {
-                    messageUser("Error in register");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-
-            }
-        });
-
-
+    @Override
+    public void onInputSent(CharSequence input) {
+        messageUser(input.toString());
+        if (Messages.SAVE_USER_SUCCESSFUL.toString().equals(input.toString())){
+            finish();
+        }
     }
 
 

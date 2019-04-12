@@ -35,6 +35,7 @@ import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.service.EventsAPIService;
 import com.thinkincode.events_android.service.NetworkHelper;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, EventsAPIServiceViewMode.ListerAnswerToken, EventsAPIServiceViewMode.ListerAnswer {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -74,8 +75,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private EventsAPIService eventsAPIService = NetworkHelper.create();
-    private AuthenticationToken authenticationToken;
+    private EventsAPIServiceViewMode eventsAPIServiceViewMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +107,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,this);
     }
 
     private void populateAutoComplete() {
@@ -192,25 +193,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask.execute((Void) null);
         }
     }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
-
     /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -232,8 +219,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             });
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
@@ -287,6 +272,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         startActivity(intent);
     }
 
+    @Override
+    public void onInputSentToken(AuthenticationToken authenticationToken) {
+        if (authenticationToken != null)
+        {
+            Intent intent = new Intent(LoginActivity.this, RecyclerEvents.class);
+            intent.putExtra("authenticationToken", authenticationToken);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onInputSent(CharSequence input) {
+            messageUser(input.toString());
+    }
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -322,35 +322,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Map<String,String> userCredentials = new HashMap<>();
                 userCredentials.put("username", mEmail);
                 userCredentials.put("password", mPassword);
-                Call<AuthenticationToken> result =  eventsAPIService.getToken(userCredentials);
-                result.enqueue(new Callback<AuthenticationToken>() {
-                    @Override
-                    public void onResponse(Call<AuthenticationToken> call, Response<AuthenticationToken> response) {
-                        if (response.body() != null)
-                        {
-                            authenticationToken = response.body();
-                            Intent intent = new Intent(LoginActivity.this, RecyclerEvents.class);
-                            intent.putExtra("authenticationToken", authenticationToken);
-                            startActivity(intent);
-                        }else{
-                            if (response.message().contains("Unauthorized")){
-                                messageUser("Password or User incorrect");
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<AuthenticationToken> call, Throwable t) {
-                        Toast.makeText(LoginActivity.this,"We can't find the user",Toast.LENGTH_LONG).show();
-                    }
-                });
-                // Simulate network access.
-                Thread.sleep(2000);
+                eventsAPIServiceViewMode.getToken(userCredentials);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 return false;
             }
-
-            // TODO: register the new account here.
             return true;
         }
 
@@ -358,7 +334,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-
             if (!success)  {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
