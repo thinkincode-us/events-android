@@ -13,16 +13,10 @@ import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.service.EventsAPIService;
-import com.thinkincode.events_android.service.NetworkHelper;
 import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewMode.ListerAccountEvents {
     public static final String TAG = "RecyclerUsers_TAG";
@@ -53,6 +47,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RecyclerEvents.this, AddEntityActivity.class);
+                intent.putExtra("authenticationToken",authenticationToken) ;
+
                 startActivity(intent);
             }
         });
@@ -69,9 +65,11 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
         updateData();
     }
 
+  
     private void updateData() {
         try {
-            eventsAPIServiceViewMode.getUsers(authenticationToken.getAccessToken());
+            eventsAPIServiceViewMode.getUsersForEvents(authenticationToken.getAccessToken());
+
         } catch (Exception ex) {
             ex.printStackTrace();
             Log.d(TAG, "onCreate: " + ex.getMessage());

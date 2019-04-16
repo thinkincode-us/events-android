@@ -278,6 +278,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         {
             Intent intent = new Intent(LoginActivity.this, RecyclerEvents.class);
             intent.putExtra("authenticationToken", authenticationToken);
+
             startActivity(intent);
         }
     }

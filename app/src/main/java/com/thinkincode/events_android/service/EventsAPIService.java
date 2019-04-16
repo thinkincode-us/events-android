@@ -37,7 +37,15 @@ public interface EventsAPIService {
     @GET("/api/v1/account/users")
     Call<List<User>> getUsers( @Header("Authorization") String auth);
 
+
+    @GET("api/v1/{accountId}/catalog/entities")
+    Call<List<Entity>> getEntities( @Path("accountId") String accountId, @Header("Authorization") String auth);
+
     @GET("/api/v1/accounts/{accountId}/events")
     Call<List<Event>> getAccountEvents( @Path("accountId") String accountId, @Header("Authorization") String auth);
+
+    @POST("/api/v1/accounts/{accountId}/events")
+    Call<Event>  postAccountEvents(@Path("accountId") String accountId, @Header("Authorization") String token, @ Body Event event );
+
 
 }
