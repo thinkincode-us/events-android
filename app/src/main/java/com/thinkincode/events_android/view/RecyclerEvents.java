@@ -56,7 +56,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 startActivity(intent);
             }
         });
-        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this);
+        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(null,null,this);
     }
 
     @Override

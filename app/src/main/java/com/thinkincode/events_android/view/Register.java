@@ -45,7 +45,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this);
+        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,null,null);
     }
 
     private boolean flagIsEmpty = true;
@@ -175,9 +175,15 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
             boolean io = matcher.matches();
             return io;
         }
+        public boolean validate2(final String password) {
+            pattern = Pattern.compile(PASSWORD_PATTERN);
+            matcher = pattern.matcher(password);
+            boolean io = matcher.matches();
+            return io;
+        }
     }
 
-    public final static boolean isValidEmail(CharSequence target) {
+    public boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 }

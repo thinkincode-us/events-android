@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,this);
+        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,this,null);
     }
 
     private void populateAutoComplete() {

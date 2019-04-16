@@ -1,5 +1,6 @@
 package com.thinkincode.events_android.viewmodel;
 
+import com.thinkincode.events_android.di.DaggerEventsAPIComponent;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -19,9 +22,10 @@ public class EventsAPIServiceViewMode {
     private ListerAnswer listerAnswer;
     private ListerAnswerToken listerAnswerToken;
     private ListerAccountEvents listerAccountEvents;
-    private static EventsAPIService apiService;
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
+    @Inject
+    public EventsAPIService apiService;
 
     public interface ListerAnswer {
         void onInputSent(CharSequence  input);
@@ -36,24 +40,12 @@ public class EventsAPIServiceViewMode {
         void onInputError(String error);
     }
 
-
-    public EventsAPIServiceViewMode(ListerAnswer listerAnswer) {
-        this.listerAnswer = listerAnswer;
-        if (apiService==null)
-            apiService= NetworkHelper.create();
-    }
-
-    public EventsAPIServiceViewMode(ListerAnswerToken listerAnswerToken,ListerAnswer listerAnswer) {
+    public EventsAPIServiceViewMode(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
         this.listerAnswerToken = listerAnswerToken;
         this.listerAnswer = listerAnswer;
+        this.listerAccountEvents = listerAccountEvents;
         if (apiService==null)
-            apiService= NetworkHelper.create();
-    }
-
-    public EventsAPIServiceViewMode(ListerAccountEvents listerAnswer) {
-        this.listerAccountEvents = listerAnswer;
-        if (apiService==null)
-            apiService= NetworkHelper.create();
+            apiService= DaggerEventsAPIComponent.builder().build().getApiServices();
     }
 
     public void createEntity(Entity entity){
