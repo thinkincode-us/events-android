@@ -2,9 +2,7 @@ package com.thinkincode.events_android;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.thinkincode.events_android.view.LoginActivity;
 import com.thinkincode.events_android.view.Register;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

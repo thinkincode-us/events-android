@@ -5,7 +5,6 @@ import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.User;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 

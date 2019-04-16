@@ -12,28 +12,16 @@ import android.view.View;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Event;
-import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.service.EventsAPIService;
-import com.thinkincode.events_android.service.NetworkHelper;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
-
-import java.util.ArrayList;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewMode.ListerAccountEvents {
+public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewModelSingleton.ListerAccountEvents {
     public static final String TAG = "RecyclerUsers_TAG";
 
     private RecyclerView recycler;
     private RecyclerView.Adapter adapter;
-    private EventsAPIServiceViewMode eventsAPIServiceViewMode;
+    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
     private FloatingActionButton floatingActionButton;
     private AuthenticationToken authenticationToken;
-    List<User> listUsers = new ArrayList<>();
-    List<Event> listEvents = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +44,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 startActivity(intent);
             }
         });
-        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(null,null,this);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(null,null,this);
     }
 
     @Override
@@ -71,7 +59,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
     private void updateData() {
         try {
-            eventsAPIServiceViewMode.getUsers(authenticationToken.getAccessToken());
+            eventsAPIServiceViewModelSingleton.getUsers(authenticationToken.getAccessToken());
         } catch (Exception ex) {
             ex.printStackTrace();
             Log.d(TAG, "onCreate: " + ex.getMessage());

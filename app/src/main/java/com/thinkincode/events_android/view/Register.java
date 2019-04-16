@@ -12,18 +12,18 @@ import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
 import com.thinkincode.events_android.viewmodel.Messages;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Register extends AppCompatActivity implements EventsAPIServiceViewMode.ListerAnswer {
+public class Register extends AppCompatActivity implements EventsAPIServiceViewModelSingleton.ListerAnswer {
 
     private TextView firstName, lastName, phone, email, password, passwordCopy;
     private TextView policy, match;
 
-    private EventsAPIServiceViewMode eventsAPIServiceViewMode;
+    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +45,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(this,null,null);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,null,null);
     }
 
     private boolean flagIsEmpty = true;
@@ -146,7 +146,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
                 phone.getText().toString(),
                 email.getText().toString(),
                 password.getText().toString());
-        eventsAPIServiceViewMode.registerUser(newUser);
+        eventsAPIServiceViewModelSingleton.registerUser(newUser);
     }
 
     @Override

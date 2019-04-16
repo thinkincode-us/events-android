@@ -10,20 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class EventsAPIServiceViewMode {
+public class EventsAPIServiceViewModelSingleton {
     private ListerAnswer listerAnswer;
     private ListerAnswerToken listerAnswerToken;
     private ListerAccountEvents listerAccountEvents;
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
 
-    private static EventsAPIServiceViewMode INSTANCE = null;
+    private static EventsAPIServiceViewModelSingleton INSTANCE = null;
 
     public interface ListerAnswer {
         void onInputSent(CharSequence  input);
@@ -38,15 +36,15 @@ public class EventsAPIServiceViewMode {
         void onInputError(String error);
     }
 
-    private EventsAPIServiceViewMode(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
+    private EventsAPIServiceViewModelSingleton(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents) {
         this.listerAnswerToken = listerAnswerToken;
         this.listerAnswer = listerAnswer;
         this.listerAccountEvents = listerAccountEvents;
     }
 
-    public static EventsAPIServiceViewMode getINSTANCE(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
+    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents) {
         if (INSTANCE == null)
-            INSTANCE = new EventsAPIServiceViewMode(listerAnswer,listerAnswerToken,listerAccountEvents);
+            INSTANCE = new EventsAPIServiceViewModelSingleton(listerAnswer,listerAnswerToken,listerAccountEvents);
         return INSTANCE;
     }
 

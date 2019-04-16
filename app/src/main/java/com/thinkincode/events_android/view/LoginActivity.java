@@ -32,30 +32,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
-import com.thinkincode.events_android.di.DaggerEventsAPIComponent;
-import com.thinkincode.events_android.di.EventsAPIComponent;
 import com.thinkincode.events_android.model.AuthenticationToken;
-import com.thinkincode.events_android.service.EventsAPIService;
-import com.thinkincode.events_android.service.NetworkHelper;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, EventsAPIServiceViewMode.ListerAnswerToken, EventsAPIServiceViewMode.ListerAnswer {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, EventsAPIServiceViewModelSingleton.ListerAnswerToken, EventsAPIServiceViewModelSingleton.ListerAnswer {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -79,7 +70,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    EventsAPIServiceViewMode eventsAPIServiceViewMode;
+    EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +102,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        EventsAPIComponent component = DaggerEventsAPIComponent.builder().build();
-        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(this,this,null);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this,null);
     }
 
     private void populateAutoComplete() {
@@ -327,7 +317,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Map<String,String> userCredentials = new HashMap<>();
                 userCredentials.put("username", mEmail);
                 userCredentials.put("password", mPassword);
-                eventsAPIServiceViewMode.getToken(userCredentials);
+                eventsAPIServiceViewModelSingleton.getToken(userCredentials);
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 return false;

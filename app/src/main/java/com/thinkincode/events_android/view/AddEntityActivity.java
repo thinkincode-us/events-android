@@ -9,14 +9,14 @@ import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.Entity;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
+import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
 import com.thinkincode.events_android.viewmodel.Messages;
 
-public class AddEntityActivity extends AppCompatActivity implements EventsAPIServiceViewMode.ListerAnswer {
+public class AddEntityActivity extends AppCompatActivity implements EventsAPIServiceViewModelSingleton.ListerAnswer {
 
     private EditText editText_EntityName;
     private Button button_SaveEntity;
-    private EventsAPIServiceViewMode eventsAPIServiceViewMode;
+    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +24,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
 
         editText_EntityName = findViewById(R.id.editText_entity_name);
         button_SaveEntity = findViewById(R.id.button_save_entity);
-        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(this,null,null);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,null,null);
         button_SaveEntity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,7 +38,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
                 }
 
                 entity.setName(entityName);
-                eventsAPIServiceViewMode.createEntity(entity);
+                eventsAPIServiceViewModelSingleton.createEntity(entity);
             }
         });
     }
