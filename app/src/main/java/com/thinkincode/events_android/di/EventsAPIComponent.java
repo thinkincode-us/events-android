@@ -14,5 +14,4 @@ public interface EventsAPIComponent {
 
     EventsAPIService getApiServices();
 
-    void inject(LoginActivity mainActivity);
 }

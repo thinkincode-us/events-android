@@ -6,7 +6,6 @@ import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.User;
 import com.thinkincode.events_android.service.EventsAPIService;
-import com.thinkincode.events_android.service.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +23,6 @@ public class EventsAPIServiceViewMode {
     private ListerAccountEvents listerAccountEvents;
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
-    @Inject
-    public EventsAPIService apiService;
 
     public interface ListerAnswer {
         void onInputSent(CharSequence  input);
@@ -40,17 +37,16 @@ public class EventsAPIServiceViewMode {
         void onInputError(String error);
     }
 
+    @Inject
     public EventsAPIServiceViewMode(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
         this.listerAnswerToken = listerAnswerToken;
         this.listerAnswer = listerAnswer;
         this.listerAccountEvents = listerAccountEvents;
-        if (apiService==null)
-            apiService= DaggerEventsAPIComponent.builder().build().getApiServices();
     }
 
     public void createEntity(Entity entity){
 
-        Call<Entity> result = apiService.createEntity(entity);
+        Call<Entity> result = DaggerEventsAPIComponent.builder().build().getApiServices().createEntity(entity);
 
         result.enqueue(new Callback<Entity>() {
             @Override
@@ -71,7 +67,7 @@ public class EventsAPIServiceViewMode {
     }
 
     public void registerUser(User newUser){
-        Call<User> registerCallback = apiService.registerUser(newUser);
+        Call<User> registerCallback = DaggerEventsAPIComponent.builder().build().getApiServices().registerUser(newUser);
 
         registerCallback.enqueue(new Callback<User>() {
             @Override
@@ -91,7 +87,7 @@ public class EventsAPIServiceViewMode {
     }
 
     public void getToken(Map<String,String> userCredentials){
-        Call<AuthenticationToken> result =  apiService.getToken(userCredentials);
+        Call<AuthenticationToken> result =  DaggerEventsAPIComponent.builder().build().getApiServices().getToken(userCredentials);
         result.enqueue(new Callback<AuthenticationToken>() {
             @Override
             public void onResponse(Call<AuthenticationToken> call, Response<AuthenticationToken> response) {
@@ -115,7 +111,7 @@ public class EventsAPIServiceViewMode {
 
     public void getAccountEvents(String token,String id ){
 
-        Call<List<Event>> eventsResult = apiService.getAccountEvents( id,"Bearer " + token);
+        Call<List<Event>> eventsResult = DaggerEventsAPIComponent.builder().build().getApiServices().getAccountEvents( id,"Bearer " + token);
         eventsResult.enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
@@ -133,7 +129,7 @@ public class EventsAPIServiceViewMode {
     }
 
     public void getUsers(String token){
-        Call<List<User>> UserResult = apiService.getUsers( "Bearer " + token);
+        Call<List<User>> UserResult = DaggerEventsAPIComponent.builder().build().getApiServices().getUsers( "Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
             @Override
