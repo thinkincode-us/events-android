@@ -24,7 +24,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
 
         editText_EntityName = findViewById(R.id.editText_entity_name);
         button_SaveEntity = findViewById(R.id.button_save_entity);
-        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,null,null);
+        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(this,null,null);
         button_SaveEntity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

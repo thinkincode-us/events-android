@@ -45,7 +45,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-        eventsAPIServiceViewMode = new EventsAPIServiceViewMode(this,null,null);
+        eventsAPIServiceViewMode = EventsAPIServiceViewMode.getINSTANCE(this,null,null);
     }
 
     private boolean flagIsEmpty = true;

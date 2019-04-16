@@ -5,7 +5,6 @@ import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.service.EventsAPIService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,8 @@ public class EventsAPIServiceViewMode {
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
 
+    private static EventsAPIServiceViewMode INSTANCE = null;
+
     public interface ListerAnswer {
         void onInputSent(CharSequence  input);
     }
@@ -37,11 +38,16 @@ public class EventsAPIServiceViewMode {
         void onInputError(String error);
     }
 
-    @Inject
-    public EventsAPIServiceViewMode(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
+    private EventsAPIServiceViewMode(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
         this.listerAnswerToken = listerAnswerToken;
         this.listerAnswer = listerAnswer;
         this.listerAccountEvents = listerAccountEvents;
+    }
+
+    public static EventsAPIServiceViewMode getINSTANCE(ListerAnswer listerAnswer,ListerAnswerToken listerAnswerToken,ListerAccountEvents listerAccountEvents) {
+        if (INSTANCE == null)
+            INSTANCE = new EventsAPIServiceViewMode(listerAnswer,listerAnswerToken,listerAccountEvents);
+        return INSTANCE;
     }
 
     public void createEntity(Entity entity){
