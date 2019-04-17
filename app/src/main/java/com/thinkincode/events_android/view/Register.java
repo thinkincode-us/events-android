@@ -45,7 +45,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,null,null);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
     }
 
     private boolean flagIsEmpty = true;
@@ -96,7 +96,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
                     policy.setVisibility(View.GONE);
                 }
             }
-            String pass1 = password.getText().toString(),pass2 = passwordCopy.getText().toString();
+            String pass1 = password.getText().toString(), pass2 = passwordCopy.getText().toString();
             if (!pass1.equals(pass2)) {
                 match.setVisibility(View.VISIBLE);
                 match.setText(getApplicationContext().getString(R.string.password_is_not_match));
@@ -151,9 +151,13 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
 
     @Override
     public void onInputSent(CharSequence input) {
-        messageUser(input.toString());
-        if (Messages.SAVE_USER_SUCCESSFUL.toString().equals(input.toString())){
-            finish();
+        if (Messages.SAVE_USER_SUCCESSFUL.toString().equals(input.toString())) {
+            messageUser(input.toString());
+            try {
+                Thread.sleep(500);
+                finish();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -175,6 +179,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
             boolean io = matcher.matches();
             return io;
         }
+
         public boolean validate2(final String password) {
             pattern = Pattern.compile(PASSWORD_PATTERN);
             matcher = pattern.matcher(password);

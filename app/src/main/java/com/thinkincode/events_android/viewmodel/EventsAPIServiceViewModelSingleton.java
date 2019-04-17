@@ -15,9 +15,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class EventsAPIServiceViewModelSingleton {
-    private ListerAnswer listerAnswer;
-    private ListerAnswerToken listerAnswerToken;
-    private ListerAccountEvents listerAccountEvents;
+    private ListerAnswer listerAnswer = null;
+    private ListerAnswerToken listerAnswerToken = null;
+    private ListerAccountEvents listerAccountEvents = null;
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
 
@@ -36,15 +36,17 @@ public class EventsAPIServiceViewModelSingleton {
         void onInputError(String error);
     }
 
-    private EventsAPIServiceViewModelSingleton(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents) {
-        this.listerAnswerToken = listerAnswerToken;
-        this.listerAnswer = listerAnswer;
-        this.listerAccountEvents = listerAccountEvents;
+    private EventsAPIServiceViewModelSingleton() {
+
     }
 
     public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents) {
         if (INSTANCE == null)
-            INSTANCE = new EventsAPIServiceViewModelSingleton(listerAnswer,listerAnswerToken,listerAccountEvents);
+            INSTANCE = new EventsAPIServiceViewModelSingleton();
+        INSTANCE.listerAccountEvents = listerAccountEvents;
+        INSTANCE.listerAnswer = listerAnswer;
+        INSTANCE.listerAnswerToken = listerAnswerToken;
+
         return INSTANCE;
     }
 
