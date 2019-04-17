@@ -105,6 +105,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this,null);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this,null);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        eventsAPIServiceViewModelSingleton = null;
+    }
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;

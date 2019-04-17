@@ -51,6 +51,18 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,null,null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+            eventsAPIServiceViewModelSingleton = null;
+    }
+
     void messageUser(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

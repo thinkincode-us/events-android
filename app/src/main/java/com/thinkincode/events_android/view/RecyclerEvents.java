@@ -55,6 +55,13 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     protected void onResume() {
         super.onResume();
         updateData();
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(null,null,this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        eventsAPIServiceViewModelSingleton = null;
     }
 
     private void updateData() {

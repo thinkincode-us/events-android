@@ -48,6 +48,18 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        eventsAPIServiceViewModelSingleton = null;
+    }
+
     private boolean flagIsEmpty = true;
     private final TextWatcher textWatcher = new TextWatcher() {
         @Override
