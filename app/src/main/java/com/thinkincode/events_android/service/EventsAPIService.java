@@ -3,6 +3,7 @@ package com.thinkincode.events_android.service;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
+import com.thinkincode.events_android.model.PostEventRequest;
 import com.thinkincode.events_android.model.User;
 
 import java.security.Principal;
@@ -45,7 +46,8 @@ public interface EventsAPIService {
     Call<List<Event>> getAccountEvents( @Path("accountId") String accountId, @Header("Authorization") String auth);
 
     @POST("/api/v1/accounts/{accountId}/events")
-    Call<Event>  postAccountEvents(@Path("accountId") String accountId, @Header("Authorization") String token, @ Body Event event );
+    Call<Event>  postAccountEvents(@Path("accountId") String accountId, @Header("Authorization") String token, @Body PostEventRequest event );
 
-
+    @GET("/api/v1/{accountId}/catalog/events")
+    Call<List<Event>> getCatalogEvents(@Path("accountId") String accountId,@Header("Authorization") String token,@Query("entityId") String entityId);
 }

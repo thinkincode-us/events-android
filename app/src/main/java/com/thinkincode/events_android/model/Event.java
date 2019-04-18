@@ -1,6 +1,5 @@
 package com.thinkincode.events_android.model;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,21 +13,22 @@ public class Event {
     private List<Task> tasks;
 
 
-    public Event(String id, String name, String entityId, String entityName, String createdByUsername, LocalDateTime dtCreated, List<Task> tasks) {
+
+
+
+    public Event(String id, String name, String entityId, String entityName) {
+
         this.id = id;
         this.name = name;
         this.entityId = entityId;
         this.entityName = entityName;
-        this.tasks = tasks;
     }
 
-    public Event(String parentId, String name, String entityId, String entityName) {
 
-        this.parentId = parentId;
-        this.name = name;
-        this.entityId = entityId;
-        this.entityName = entityName;
+    public Event() {
+
     }
+
 
     public void addTasks(Task task) {
         if (tasks == null) tasks = new ArrayList<>();
@@ -84,11 +84,11 @@ public class Event {
     private String id;
     private String name;
 
-    public String getId() {
+    public String getEventCatalogId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setEventCatalogId(String id) {
         this.id = id;
     }
 

@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
@@ -18,7 +19,7 @@ import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewMode.ListerAccountEvents {
+public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewMode.ListerAccountEvents{
     public static final String TAG = "RecyclerUsers_TAG";
 
     private RecyclerView recycler;
