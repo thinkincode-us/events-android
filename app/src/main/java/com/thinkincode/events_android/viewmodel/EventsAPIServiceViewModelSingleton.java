@@ -83,6 +83,19 @@ public class EventsAPIServiceViewModelSingleton {
 
     }
 
+    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerEntity listerEntity, ListerAnswer listerAnswer, ListerUserId listerUserId,ListerCatalogEvents listerCatalogEvents)
+    {
+        if (INSTANCE == null)
+            INSTANCE = new EventsAPIServiceViewModelSingleton();
+        INSTANCE.listerEntity = listerEntity;
+        INSTANCE.listerAnswer = listerAnswer;
+        INSTANCE.listerUserId = listerUserId;
+        INSTANCE.listerCatalogEvents = listerCatalogEvents;
+
+        return INSTANCE;
+
+    }
+
     public void createEntity(Entity entity) {
 
         Call<Entity> result = DaggerEventsAPIComponent.builder().build().getApiServices().createEntity(entity);

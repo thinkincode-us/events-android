@@ -52,7 +52,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
         spinnerEvents = findViewById(R.id.spinnerEvents);
         spinnerEntities.setOnItemSelectedListener(this);
         spinnerEvents.setOnItemSelectedListener(this);
-        eventsAPIServiceViewModelSingleton = new EventsAPIServiceViewMode(this,this, this, this);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this, this, this);
         Intent intent = getIntent();
         authenticationToken = (AuthenticationToken) intent.getSerializableExtra("authenticationToken");
         eventsAPIServiceViewModelSingleton.getUsersForEntities(authenticationToken.getAccessToken());
@@ -112,7 +112,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
     @Override
     protected void onResume() {
         super.onResume();
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,null,null);
+        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this, this, this);
     }
 
     @Override
