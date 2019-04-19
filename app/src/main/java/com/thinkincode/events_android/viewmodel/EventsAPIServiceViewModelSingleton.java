@@ -189,7 +189,7 @@ public class EventsAPIServiceViewModelSingleton {
                 if (response.body() != null) {
                     listUsers = response.body();
                     String id = listUsers.get(0).getId();
-                    getAccountEvents(id,token);
+                    getAccountEvents(token, id);
                 }
             }
 
@@ -221,7 +221,7 @@ public class EventsAPIServiceViewModelSingleton {
         });
     }
 
-    public void getEntities(String id, String token) {
+    public void getEntities(String token, String id) {
         Call<List<Entity>> EntitiesResult = DaggerEventsAPIComponent.builder().build().getApiServices().getEntities(id, "Bearer " + token);
         EntitiesResult.enqueue(new Callback<List<Entity>>() {
             @Override
