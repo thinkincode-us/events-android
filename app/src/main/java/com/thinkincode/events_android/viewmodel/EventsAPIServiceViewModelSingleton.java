@@ -204,7 +204,7 @@ public class EventsAPIServiceViewModelSingleton {
 
 
     public void postAccountEvents(String token, String id, PostEventRequest eventRequest) {
-        Call<Event> CreateEventResult = apiService.postAccountEvents(id, "Bearer " + token, eventRequest);
+        Call<Event> CreateEventResult = DaggerEventsAPIComponent.builder().build().getApiServices().postAccountEvents(id, "Bearer " + token, eventRequest);
         CreateEventResult.enqueue(new Callback<Event>() {
             @Override
             public void onResponse(Call<Event> call, Response<Event> response) {
@@ -222,7 +222,7 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
     public void getEntities(String id, String token) {
-        Call<List<Entity>> EntitiesResult = apiService.getEntities(id, "Bearer " + token);
+        Call<List<Entity>> EntitiesResult = DaggerEventsAPIComponent.builder().build().getApiServices().getEntities(id, "Bearer " + token);
         EntitiesResult.enqueue(new Callback<List<Entity>>() {
             @Override
             public void onResponse(Call<List<Entity>> call, Response<List<Entity>> response) {
@@ -243,7 +243,7 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
     public void getUsersForEvents(String token) {
-        Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
+        Call<List<User>> UserResult = DaggerEventsAPIComponent.builder().build().getApiServices().getUsers("Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
             @Override
@@ -265,7 +265,7 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
     public void getUsersForEntities(String token) {
-        Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
+        Call<List<User>> UserResult = DaggerEventsAPIComponent.builder().build().getApiServices().getUsers("Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
             @Override
@@ -289,7 +289,7 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
     public void getCatalogEvents(String id, String token, String entityId) {
-        Call<List<Event>> events = apiService.getCatalogEvents(id, "Bearer " + token, entityId);
+        Call<List<Event>> events = DaggerEventsAPIComponent.builder().build().getApiServices().getCatalogEvents(id, "Bearer " + token, entityId);
         events.enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
