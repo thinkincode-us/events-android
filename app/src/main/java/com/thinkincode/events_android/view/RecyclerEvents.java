@@ -8,13 +8,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
+import com.thinkincode.events_android.model.User;
+
+import java.util.ArrayList;
 import java.util.List;
-public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewModelSingleton.ListerAccountEvents {
+
+public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewModelSingleton.ListerAccountEvents{
     public static final String TAG = "RecyclerUsers_TAG";
 
     private RecyclerView recycler;
@@ -22,6 +27,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
     private FloatingActionButton floatingActionButton;
     private AuthenticationToken authenticationToken;
+    List<User> listUsers = new ArrayList<>();
+    List<Event> listEvents = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RecyclerEvents.this, AddEntityActivity.class);
+                intent.putExtra("authenticationToken",authenticationToken) ;
+
                 startActivity(intent);
             }
         });
@@ -63,6 +72,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
         super.onDestroy();
         eventsAPIServiceViewModelSingleton = null;
     }
+
 
     private void updateData() {
         try {
