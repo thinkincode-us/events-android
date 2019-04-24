@@ -1,66 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:weightSum="10"
     android:orientation="vertical"
     tools:context=".view.AddEntityActivity">
 
     <TextView
         android:id="@+id/textView"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginBottom="21dp"
-        android:text="Add Entity"
+        android:layout_weight="1"
+        android:text="Add Event"
         android:textSize="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/editText_event_name"
-        app:layout_constraintStart_toStartOf="@+id/editText_event_name" />
+        tools:layout_editor_absoluteX="122dp"
+        tools:layout_editor_absoluteY="326dp" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerViewEntities"
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerViewEvents"
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+    </android.support.v7.widget.RecyclerView>
 
     <EditText
         android:id="@+id/editText_event_name"
+        android:layout_weight="1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginBottom="299dp"
         android:ems="10"
         android:hint="Name"
         android:inputType="textPersonName"
         android:textSize="24dp"
         android:textStyle="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:layout_editor_absoluteX="46dp"
+        tools:layout_editor_absoluteY="379dp" />
 
     <Button
         android:id="@+id/button_save_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="83dp"
-        android:layout_marginTop="26dp"
-        android:text="Save Entity"
-        app:layout_constraintStart_toStartOf="@+id/editText_event_name"
-        app:layout_constraintTop_toBottomOf="@+id/editText_event_name" />
-
-    <Spinner
-        android:id="@+id/spinnerEntities"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="46dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Spinner
-        android:id="@+id/spinnerEvents"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="192dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_weight="1"
+        android:text="Save Event"
+        tools:layout_editor_absoluteX="129dp"
+        tools:layout_editor_absoluteY="458dp" />
 
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
