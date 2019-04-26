@@ -1,5 +1,14 @@
 package com.thinkincode.events_android.viewmodel;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import com.thinkincode.events_android.view.RecyclerEvents.DownloadFileAsyncTask;
 import com.thinkincode.events_android.di.DaggerEventsAPIComponent;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
@@ -8,20 +17,32 @@ import com.thinkincode.events_android.model.PostEventRequest;
 import com.thinkincode.events_android.model.User;
 import com.thinkincode.events_android.service.EventsAPIService;
 import com.thinkincode.events_android.service.NetworkHelper;
+import com.thinkincode.events_android.view.AddEntityActivity;
+import com.thinkincode.events_android.view.RecyclerEvents;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.support.constraint.Constraints.TAG;
 
 public class EventsAPIServiceViewModelSingleton {
     private ListerAnswer listerAnswer = null;
     private ListerAnswerToken listerAnswerToken = null;
     private ListerAccountEvents listerAccountEvents = null;
+    private ListerPdf listerPdf;
 
 
     private ListerUserId listerUserId;
@@ -32,10 +53,14 @@ public class EventsAPIServiceViewModelSingleton {
     private List<User> listUsers = new ArrayList<>();
     private List<Event> listEvents = new ArrayList<>();
 
+
     private static EventsAPIServiceViewModelSingleton INSTANCE = null;
 
+    public interface ListerPdf {
+        void Download(Response<ResponseBody> response);
 
 
+    }
 
     public interface ListerAnswer {
         void onInputSent(CharSequence input);
@@ -71,20 +96,29 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
 
-    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents)
-        {
-            if (INSTANCE == null)
-                INSTANCE = new EventsAPIServiceViewModelSingleton();
-            INSTANCE.listerAccountEvents = listerAccountEvents;
-            INSTANCE.listerAnswer = listerAnswer;
-            INSTANCE.listerAnswerToken = listerAnswerToken;
+    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerAnswer listerAnswer, ListerAnswerToken listerAnswerToken, ListerAccountEvents listerAccountEvents) {
+        if (INSTANCE == null)
+            INSTANCE = new EventsAPIServiceViewModelSingleton();
+        INSTANCE.listerAccountEvents = listerAccountEvents;
+        INSTANCE.listerAnswer = listerAnswer;
+        INSTANCE.listerAnswerToken = listerAnswerToken;
 
-            return INSTANCE;
+        return INSTANCE;
 
     }
 
-    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerEntity listerEntity, ListerAnswer listerAnswer, ListerUserId listerUserId,ListerCatalogEvents listerCatalogEvents)
-    {
+    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerUserId listerUserId, ListerAccountEvents listerAccountEvents, ListerPdf listerPdf) {
+        if (INSTANCE == null)
+            INSTANCE = new EventsAPIServiceViewModelSingleton();
+        INSTANCE.listerAccountEvents = listerAccountEvents;
+        INSTANCE.listerPdf = listerPdf;
+        INSTANCE.listerUserId = listerUserId;
+
+        return INSTANCE;
+
+    }
+
+    public static EventsAPIServiceViewModelSingleton getINSTANCE(ListerEntity listerEntity, ListerAnswer listerAnswer, ListerUserId listerUserId, ListerCatalogEvents listerCatalogEvents) {
         if (INSTANCE == null)
             INSTANCE = new EventsAPIServiceViewModelSingleton();
         INSTANCE.listerEntity = listerEntity;
@@ -95,6 +129,7 @@ public class EventsAPIServiceViewModelSingleton {
         return INSTANCE;
 
     }
+
 
     public void createEntity(Entity entity) {
 
@@ -119,7 +154,7 @@ public class EventsAPIServiceViewModelSingleton {
     }
 
 
- public void registerUser(User newUser){
+    public void registerUser(User newUser) {
         Call<User> registerCallback = apiService.registerUser(newUser);
 
         registerCallback.enqueue(new Callback<User>() {
@@ -139,8 +174,8 @@ public class EventsAPIServiceViewModelSingleton {
         });
     }
 
-    public void getToken(Map<String,String> userCredentials){
-        Call<AuthenticationToken> result =  apiService.getToken(userCredentials);
+    public void getToken(Map<String, String> userCredentials) {
+        Call<AuthenticationToken> result = apiService.getToken(userCredentials);
         result.enqueue(new Callback<AuthenticationToken>() {
             @Override
             public void onResponse(Call<AuthenticationToken> call, Response<AuthenticationToken> response) {
@@ -161,9 +196,9 @@ public class EventsAPIServiceViewModelSingleton {
         });
     }
 
-    public void getAccountEvents(String token,String id ){
+    public void getAccountEvents(String token, String id) {
 
-        Call<List<Event>> eventsResult = apiService.getAccountEvents( id,"Bearer " + token);
+        Call<List<Event>> eventsResult = apiService.getAccountEvents(id, "Bearer " + token);
         eventsResult.enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
@@ -180,8 +215,8 @@ public class EventsAPIServiceViewModelSingleton {
         });
     }
 
-    public void getUsers(String token){
-        Call<List<User>> UserResult = apiService.getUsers( "Bearer " + token);
+    public void getUsers(String token) {
+        Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
             @Override
@@ -189,6 +224,7 @@ public class EventsAPIServiceViewModelSingleton {
                 if (response.body() != null) {
                     listUsers = response.body();
                     String id = listUsers.get(0).getId();
+                    listerUserId.onInputSentUserId(id);
                     getAccountEvents(token, id);
                 }
             }
@@ -242,7 +278,7 @@ public class EventsAPIServiceViewModelSingleton {
         });
     }
 
-    public void getUsersForEvents(String token) {
+    public void getUsersDetails(String token) {
         Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
@@ -251,7 +287,7 @@ public class EventsAPIServiceViewModelSingleton {
                 if (response.body() != null) {
                     listUsers = response.body();
                     String id = listUsers.get(0).getId();
-                    getAccountEvents(token, id);
+                    listerUserId.onInputSentUserId(id);
                 }
             }
 
@@ -304,5 +340,25 @@ public class EventsAPIServiceViewModelSingleton {
             }
         });
     }
+
+    public void getPdfEvents(String id, String token){
+        Call<ResponseBody> pdfResult = apiService.getPdfEvents(id, "Bearer " + token);
+        pdfResult.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.body()!=null){
+                    listerPdf.Download(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+
 
 }

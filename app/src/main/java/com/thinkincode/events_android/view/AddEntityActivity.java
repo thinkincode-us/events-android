@@ -167,7 +167,8 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
 
 
     @Override
-    public void onInputSentUserId(String userId) {
+    public void onInputSentUserId(
+            String userId) {
         this.userId = userId;
     }
 

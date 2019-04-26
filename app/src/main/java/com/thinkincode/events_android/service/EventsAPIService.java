@@ -9,6 +9,7 @@ import com.thinkincode.events_android.model.User;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -16,6 +17,7 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 public interface EventsAPIService {
 
@@ -49,4 +51,10 @@ public interface EventsAPIService {
 
     @GET("/api/v1/{accountId}/catalog/events")
     Call<List<Event>> getCatalogEvents(@Path("accountId") String accountId,@Header("Authorization") String token,@Query("entityId") String entityId);
+
+    @GET("/api/v1/accounts/{accountId}/events.pdf")
+
+    Call<ResponseBody> getPdfEvents(@Path("accountId") String accountId, @Header("Authorization") String token );
+
+
 }
