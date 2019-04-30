@@ -1,11 +1,15 @@
 package com.thinkincode.events_android.view;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,11 +27,19 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.User;
 import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
 import com.thinkincode.events_android.viewmodel.Messages;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +51,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private TextView firstName, state, city, lastName, phone, email, password, passwordCopy;
     private TextView policy, match;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
     private boolean mLocationPermissionGranted = false;
@@ -65,7 +78,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
-
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         checkMapServices();
 
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
@@ -178,9 +191,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if (mLocationPermissionGranted) {
-
                     populateCityState();
-
                 } else {
                     getLocationPermission();
                 }
@@ -190,9 +201,31 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
     }
 
     private void populateCityState() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    Location location = task.getResult();
 
-        state.setText("Georgia");
-        city.setText("Atlanta");
+                    List<Address> addresses = new ArrayList<>();
+                    Geocoder geocoder = new Geocoder(Register.this, Locale.getDefault());
+                    try {
+                        addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        state.setText(addresses.get(0).getAdminArea());
+                        city.setText(addresses.get(0).getLocality());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+
+                    }
+
+
+                }
+            }
+        });
+
     }
 
     private boolean flagIsEmpty = true;
