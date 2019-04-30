@@ -6,11 +6,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +53,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
     private FloatingActionButton floatingActionButton;
     private AuthenticationToken authenticationToken;
+    // final String filename = "Events.pdf";
+    //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + filename);
 
     private String userId;
     List<User> listUsers = new ArrayList<>();
@@ -74,8 +79,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
             public void onClick(View v) {
                 Intent intent = new Intent(RecyclerEvents.this, AddEntityActivity.class);
                 intent.putExtra("authenticationToken", authenticationToken);
-
                 startActivity(intent);
+
             }
         });
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, this, this);
@@ -147,20 +152,23 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
     @Override
     public void Download(retrofit2.Response<ResponseBody> response) {
-        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(this, this);
+        final String filename = "Events.pdf";
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + filename);
+        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(this, this, file);
         downloadFileAsyncTask.execute(response.body().byteStream());
     }
 
 
-    public static class DownloadFileAsyncTask extends AsyncTask<InputStream, Void, Boolean> {
+    public class DownloadFileAsyncTask extends AsyncTask<InputStream, Void, Boolean> {
 
         final String appDirectoryName = "Events";
-        final String filename = "Events.pdf";
+
         private final Context ctx;
         private final Activity activity;
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + filename);
+        File file;
 
-        public DownloadFileAsyncTask(Context ctx, Activity activity) {
+        public DownloadFileAsyncTask(Context ctx, Activity activity, File file) {
+            this.file = file;
             this.ctx = ctx;
             this.activity = activity;
         }
@@ -200,7 +208,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 byte[] buffer = new byte[1024]; // or other buffer size
                 int read;
 
-                Log.d(TAG, "Attempting to write to: " + file + "/" + filename);
+                Log.d(TAG, "Attempting to write to: " + file);
                 while ((read = inputStream.read(buffer)) != -1) {
                     output.write(buffer, 0, read);
                     Log.v(TAG, "Writing to buffer to output stream.");
@@ -213,6 +221,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 e.printStackTrace();
                 return false;
             } finally {
+
+
                 try {
                     if (output != null) {
                         output.close();
@@ -236,7 +246,14 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
             Log.d(TAG, "Download success: " + result);
             Toast.makeText(ctx.getApplicationContext(), "File Saved", Toast.LENGTH_SHORT).show();
-            
+
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri URI = FileProvider.getUriForFile(ctx, getPackageName() + ".provider", file);
+            intent.setDataAndType(URI, "application/pdf");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+
         }
     }
 
