@@ -1,15 +1,28 @@
 package com.thinkincode.events_android.view;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.User;
 import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
@@ -20,10 +33,16 @@ import java.util.regex.Pattern;
 
 public class Register extends AppCompatActivity implements EventsAPIServiceViewModelSingleton.ListerAnswer {
 
-    private TextView firstName, lastName, phone, email, password, passwordCopy;
+    private static final String TAG = "Register";
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
+    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private TextView firstName, state, city, lastName, phone, email, password, passwordCopy;
     private TextView policy, match;
 
     private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
+    private boolean mLocationPermissionGranted = false;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,7 +50,8 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         setContentView(R.layout.activity_register);
         firstName = findViewById(R.id.firstName);
         lastName = findViewById(R.id.surname);
-
+        state = findViewById(R.id.state);
+        city = findViewById(R.id.city);
         phone = findViewById(R.id.phone);
         email = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -45,6 +65,9 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         passwordCopy.addTextChangedListener(textWatcher2);
         policy = findViewById(R.id.textViewPolicy);
         match = findViewById(R.id.textViewMatch);
+
+        checkMapServices();
+
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
     }
 
@@ -52,12 +75,124 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
     protected void onResume() {
         super.onResume();
         eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         eventsAPIServiceViewModelSingleton = null;
+    }
+
+    private boolean checkMapServices() {
+        if (isServicesOK()) {
+            if (isGpsEnabled()) {
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public boolean isGpsEnabled() {
+
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+            return false;
+        } else {
+            if (mLocationPermissionGranted) {
+                populateCityState();
+            } else {
+                getLocationPermission();
+            }
+        }
+        return true;
+    }
+
+    private void getLocationPermission() {
+
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+            populateCityState();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    public boolean isServicesOK() {
+
+        Log.d(TAG, "isServicesOK: checking google services version");
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(Register.this);
+        if (available == ConnectionResult.SUCCESS) {
+            Log.d(TAG, "isServicesOK: Google Play Services is working");
+            return true;
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
+            Log.d(TAG, "isServicesOK: an error occured but we can fix it");
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(Register.this, available, ERROR_DIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        mLocationPermissionGranted = false;
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionGranted = true;
+                    populateCityState();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: called.");
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ENABLE_GPS: {
+                if (mLocationPermissionGranted) {
+
+                    populateCityState();
+
+                } else {
+                    getLocationPermission();
+                }
+            }
+        }
+
+    }
+
+    private void populateCityState() {
+
+        state.setText("Georgia");
+        city.setText("Atlanta");
     }
 
     private boolean flagIsEmpty = true;
