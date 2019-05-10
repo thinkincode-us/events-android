@@ -19,7 +19,7 @@ import android.widget.Toast;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
+import com.thinkincode.events_android.viewmodel.RepositorySingleton;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.PostEventRequest;
 
@@ -28,12 +28,12 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AddEntityActivity extends AppCompatActivity implements EventsAPIServiceViewModelSingleton.ListerEntity,
-        EventsAPIServiceViewModelSingleton.ListerAnswer, EventsAPIServiceViewModelSingleton.ListerUserId, EventsAPIServiceViewModelSingleton.ListerCatalogEvents {
+public class AddEntityActivity extends AppCompatActivity implements RepositorySingleton.ListerEntity,
+        RepositorySingleton.ListerAnswer, RepositorySingleton.ListerUserId, RepositorySingleton.ListerCatalogEvents {
 
     private EditText editText_EventName;
     private Button button_SaveEvent;
-    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
+    private RepositorySingleton repositorySingleton;
 
     private AuthenticationToken authenticationToken;
     private List<Entity> entities;
@@ -59,18 +59,18 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerViewEvents = findViewById(R.id.recyclerViewEvents);
         recyclerViewEvents.setLayoutManager(layoutManager2);
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, this, this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
 
         Intent intent = getIntent();
         authenticationToken = (AuthenticationToken) intent.getSerializableExtra("authenticationToken");
-        eventsAPIServiceViewModelSingleton.getUsersForEntities(authenticationToken.getAccessToken());
+        repositorySingleton.getUsersForEntities(authenticationToken.getAccessToken());
 
         button_SaveEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String eventName = editText_EventName.getText().toString();
                 PostEventRequest eventRequest = new PostEventRequest(eventId, eventName, entityId, entityname);
-                eventsAPIServiceViewModelSingleton.postAccountEvents(authenticationToken.getAccessToken(), userId, eventRequest);
+                repositorySingleton.postAccountEvents(authenticationToken.getAccessToken(), userId, eventRequest);
             }
         });
     }
@@ -108,7 +108,7 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
                         entityId = entitiy.getId();
                     }
                 }
-                eventsAPIServiceViewModelSingleton.getCatalogEvents(userId, authenticationToken.getAccessToken(), entityId);
+                repositorySingleton.getCatalogEvents(userId, authenticationToken.getAccessToken(), entityId);
             }
         };
 
@@ -151,13 +151,13 @@ public class AddEntityActivity extends AppCompatActivity implements EventsAPISer
     @Override
     protected void onResume() {
         super.onResume();
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, this, this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        eventsAPIServiceViewModelSingleton = null;
+        repositorySingleton = null;
     }
 
     void messageUser(String message) {

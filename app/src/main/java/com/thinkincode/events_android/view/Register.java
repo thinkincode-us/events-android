@@ -33,7 +33,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.User;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
+import com.thinkincode.events_android.viewmodel.RepositorySingleton;
 import com.thinkincode.events_android.viewmodel.Messages;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Register extends AppCompatActivity implements EventsAPIServiceViewModelSingleton.ListerAnswer {
+public class Register extends AppCompatActivity implements RepositorySingleton.ListerAnswer {
 
     private static final String TAG = "Register";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
@@ -53,7 +53,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
     private TextView policy, match;
     private FusedLocationProviderClient mFusedLocationClient;
 
-    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
+    private RepositorySingleton repositorySingleton;
     private boolean mLocationPermissionGranted = false;
 
 
@@ -81,20 +81,20 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         checkMapServices();
 
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, null, null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, null, null);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, null, null);
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        eventsAPIServiceViewModelSingleton = null;
+        repositorySingleton = null;
     }
 
     private boolean checkMapServices() {
@@ -326,7 +326,7 @@ public class Register extends AppCompatActivity implements EventsAPIServiceViewM
                 phone.getText().toString(),
                 email.getText().toString(),
                 password.getText().toString());
-        eventsAPIServiceViewModelSingleton.registerUser(newUser);
+        repositorySingleton.registerUser(newUser);
     }
 
     @Override

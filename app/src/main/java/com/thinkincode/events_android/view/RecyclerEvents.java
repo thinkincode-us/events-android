@@ -2,13 +2,15 @@ package com.thinkincode.events_android.view;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,43 +24,37 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Event;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
-import com.thinkincode.events_android.model.User;
+import com.thinkincode.events_android.viewmodel.RepositorySingleton;
+import com.thinkincode.events_android.viewmodel.EventsViewModel;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static android.support.constraint.Constraints.TAG;
-
-public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, EventsAPIServiceViewModelSingleton.ListerAccountEvents, EventsAPIServiceViewModelSingleton.ListerUserId, EventsAPIServiceViewModelSingleton.ListerPdf {
+public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, RepositorySingleton.ListerUserId, RepositorySingleton.ListerPdf {
     public static final String TAG = "RecyclerUsers_TAG";
 
     private RecyclerView recycler;
     private RecyclerView.Adapter adapter;
-    private EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
+    private RepositorySingleton repositorySingleton;
     private FloatingActionButton floatingActionButton;
     private AuthenticationToken authenticationToken;
-    // final String filename = "Events.pdf";
-    //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + filename);
-
+    private EventsViewModel evm;
+    private EventsViewModel evm2;
     private String userId;
-    List<User> listUsers = new ArrayList<>();
-    List<Event> listEvents = new ArrayList<>();
+    ArrayList<Event> eventArrayList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,20 +67,39 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
         authenticationToken = (AuthenticationToken) intent.getSerializableExtra("authenticationToken");
 
-        updateData();
-
         floatingActionButton = findViewById(R.id.fab_add_entity);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(RecyclerEvents.this, AddEntityActivity.class);
                 intent.putExtra("authenticationToken", authenticationToken);
                 startActivity(intent);
 
+
             }
         });
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE( this, this);
+        //evm = new EventsViewModel(repositorySingleton, this.getApplication(), authenticationToken.getAccessToken());
+        setAdapter();
+        evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
+        evm2.init(authenticationToken.getAccessToken());
+        observeViewModel();
+    }
 
+    public void observeViewModel() {
+
+        evm2.getObservable().observe(this,
+
+
+                new Observer<List<Event>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Event> events) {
+                        List<Event> listEvents = evm2.getObservable().getValue();
+                        eventArrayList.addAll(listEvents);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -99,7 +114,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
         switch (item.getItemId()) {
             case R.id.download:
 
-                eventsAPIServiceViewModelSingleton.getPdfEvents(userId, authenticationToken.getAccessToken());
+                repositorySingleton.getPdfEvents(userId, authenticationToken.getAccessToken());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -114,36 +129,33 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     @Override
     protected void onResume() {
         super.onResume();
-        updateData();
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this, this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE( this, this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        eventsAPIServiceViewModelSingleton = null;
+        repositorySingleton = null;
     }
 
 
     private void updateData() {
+
         try {
-            eventsAPIServiceViewModelSingleton.getUsers(authenticationToken.getAccessToken());
+            // repositorySingleton.getUsers(authenticationToken.getAccessToken());
+            // setAdapter();
         } catch (Exception ex) {
             ex.printStackTrace();
             Log.d(TAG, "onCreate: " + ex.getMessage());
         }
     }
 
-    @Override
-    public void onInputSentAccountEvents(List<Event> listEvents) {
-        adapter = new UserHistoryAdapter(RecyclerEvents.this, listEvents);
+    public void setAdapter() {
+        adapter = new UserHistoryAdapter(RecyclerEvents.this, eventArrayList);
         recycler.setAdapter(adapter);
     }
 
-    @Override
-    public void onInputError(String error) {
 
-    }
 
     @Override
     public void onInputSentUserId(String userId) {

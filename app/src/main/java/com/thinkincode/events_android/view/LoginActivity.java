@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
-import com.thinkincode.events_android.viewmodel.EventsAPIServiceViewModelSingleton;
+import com.thinkincode.events_android.viewmodel.RepositorySingleton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, EventsAPIServiceViewModelSingleton.ListerAnswerToken, EventsAPIServiceViewModelSingleton.ListerAnswer {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, RepositorySingleton.ListerAnswerToken, RepositorySingleton.ListerAnswer {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    EventsAPIServiceViewModelSingleton eventsAPIServiceViewModelSingleton;
+    RepositorySingleton repositorySingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,18 +102,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this,null);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this,this,null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        eventsAPIServiceViewModelSingleton = EventsAPIServiceViewModelSingleton.getINSTANCE(this,this,null);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this,this,null);
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        eventsAPIServiceViewModelSingleton = null;
+        repositorySingleton = null;
     }
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -328,7 +328,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Map<String,String> userCredentials = new HashMap<>();
                 userCredentials.put("username", mEmail);
                 userCredentials.put("password", mPassword);
-                eventsAPIServiceViewModelSingleton.getToken(userCredentials);
+                repositorySingleton.getToken(userCredentials);
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 return false;
