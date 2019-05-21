@@ -8,7 +8,7 @@ import dagger.Provides;
 @Module
 public abstract class EventsAPIServiceModule {
 
-    @Provides
-    static EventsAPIService provideEventsAPIService(){ return NetworkHelper.create(); }
+  @Provides
+  static EventsAPIService provideEventsAPIService(){ return NetworkHelper.create(); }
 
 }

@@ -10,6 +10,6 @@ import dagger.Component;
 @Component(modules = EventsAPIServiceModule.class)
 public interface EventsAPIComponent {
 
-    EventsAPIService getApiServices();
+  EventsAPIService getApiServices();
 
 }

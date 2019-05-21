@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,6 +37,7 @@ public class RepositorySingleton {
 
 
     private static RepositorySingleton INSTANCE = null;
+    private String string;
 
     public interface ListerPdf {
         void Download(Response<ResponseBody> response);
@@ -187,15 +189,15 @@ public class RepositorySingleton {
         });
     }
 
-    public MutableLiveData<List<Event>> getAccountEvents(String token, String id) {
+    public MutableLiveData getAccountEvents(String token, String id) {
         final MutableLiveData<List<Event>> listEvents = new MutableLiveData<>();
-        apiService.getAccountEvents(id, "Bearer " + token).enqueue(new Callback<List<Event>>() {
+        Call<List<Event>> eventsResult = apiService.getAccountEvents(id, "Bearer " + token);
+        eventsResult.enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                 if (response.body() != null) {
                     listEvents.setValue(response.body());
-                    //listEvents = response.body();
-                    //  listerAccountEvents.onInputSentAccountEvents(listEvents);
+                    //listerAccountEvents.onInputSentAccountEvents(listEvents);
                 }
             }
 
@@ -206,6 +208,7 @@ public class RepositorySingleton {
         });
         return listEvents;
     }
+
 
     public MutableLiveData<List<Event>> getUsers(String token) {
         final MutableLiveData<List<Event>> listEvents = new MutableLiveData<>();
@@ -238,6 +241,14 @@ public class RepositorySingleton {
         });
         return listEvents;
     }
+
+
+    public Observable<List<Event>> getUserEvents(String token) {
+        return apiService.getUsersRxJava(token).doOnNext(user->listerUserId.onInputSentUserId(user.get(0).getId())).flatMap(user -> apiService.getAccountEventsRxJava(user.get(0).getId(), token));
+    }
+
+    // listerUserId.onInputSentUserId(id);
+
 
 
     public void postAccountEvents(String token, String id, PostEventRequest eventRequest) {

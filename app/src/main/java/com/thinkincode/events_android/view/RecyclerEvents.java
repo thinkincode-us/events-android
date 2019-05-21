@@ -3,7 +3,6 @@ package com.thinkincode.events_android.view;
 import android.Manifest;
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,6 +39,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdapter.ItemClickLister, RepositorySingleton.ListerUserId, RepositorySingleton.ListerPdf {
@@ -53,6 +56,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     private EventsViewModel evm;
     private EventsViewModel evm2;
     private String userId;
+    private final CompositeDisposable disposables = new CompositeDisposable();
     ArrayList<Event> eventArrayList = new ArrayList<>();
 
 
@@ -79,15 +83,16 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
 
             }
         });
-        repositorySingleton = RepositorySingleton.getINSTANCE( this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, this);
         //evm = new EventsViewModel(repositorySingleton, this.getApplication(), authenticationToken.getAccessToken());
         setAdapter();
-        evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
+      /* evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
         evm2.init(authenticationToken.getAccessToken());
-        observeViewModel();
+        LiveDataObserveViewModel();*/
+        RxJavaObserveFromRepository();
     }
 
-    public void observeViewModel() {
+    public void LiveDataObserveViewModel() {
 
         evm2.getObservable().observe(this,
 
@@ -95,12 +100,47 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 new Observer<List<Event>>() {
                     @Override
                     public void onChanged(@Nullable List<Event> events) {
-                        List<Event> listEvents = evm2.getObservable().getValue();
-                        eventArrayList.addAll(listEvents);
+                        //   List<Event> listEvents = evm2.getObservable().getValue();
+                        eventArrayList.addAll(events);
                         adapter.notifyDataSetChanged();
                     }
                 });
     }
+
+    public void RxJavaObserveFromRepository() {
+        repositorySingleton
+                .getUserEvents("Bearer " + authenticationToken.getAccessToken())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new
+                                   io.reactivex.Observer<List<Event>>() {
+
+
+                                       @Override
+                                       public void onSubscribe(Disposable d) {
+                                           //              disposables.add(d);
+
+                                       }
+
+                                       @Override
+                                       public void onNext(List<Event> events) {
+                                           eventArrayList.addAll(events);
+                                           adapter.notifyDataSetChanged();
+                                       }
+
+                                       @Override
+                                       public void onError(Throwable e) {
+
+                                       }
+
+                                       @Override
+                                       public void onComplete() {
+
+                                       }
+
+                                   });
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,13 +169,14 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     @Override
     protected void onResume() {
         super.onResume();
-        repositorySingleton = RepositorySingleton.getINSTANCE( this, this);
+        repositorySingleton = RepositorySingleton.getINSTANCE(this, this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         repositorySingleton = null;
+        disposables.clear();
     }
 
 
@@ -154,7 +195,6 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
         adapter = new UserHistoryAdapter(RecyclerEvents.this, eventArrayList);
         recycler.setAdapter(adapter);
     }
-
 
 
     @Override

@@ -1,5 +1,8 @@
 package com.thinkincode.events_android.service;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
 import com.thinkincode.events_android.model.Event;
@@ -9,6 +12,7 @@ import com.thinkincode.events_android.model.User;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,7 +21,6 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import retrofit2.http.Streaming;
 
 public interface EventsAPIService {
 
@@ -37,14 +40,23 @@ public interface EventsAPIService {
     Call<User> registerUser (@Body User user);
 
     @GET("/api/v1/account/users")
-    Call<List<User>> getUsers( @Header("Authorization") String auth);
+    Observable<
+   // LiveData<
+            List<User>> getUsersRxJava(@Header("Authorization") String auth);
 
+    @GET("/api/v1/account/users")
+    Call<List<User>> getUsers(@Header("Authorization") String auth);
 
     @GET("api/v1/{accountId}/catalog/entities")
     Call<List<Entity>> getEntities( @Path("accountId") String accountId, @Header("Authorization") String auth);
 
     @GET("/api/v1/accounts/{accountId}/events")
-    Call<List<Event>> getAccountEvents( @Path("accountId") String accountId, @Header("Authorization") String auth);
+   Observable<
+   // LiveData<
+                      List<Event>> getAccountEventsRxJava(@Path("accountId") String accountId, @Header("Authorization") String auth);
+
+    @GET("/api/v1/accounts/{accountId}/events")
+    Call<List<Event>> getAccountEvents(@Path("accountId") String accountId, @Header("Authorization") String auth);
 
     @POST("/api/v1/accounts/{accountId}/events")
     Call<Event>  postAccountEvents(@Path("accountId") String accountId, @Header("Authorization") String token, @Body PostEventRequest event );
