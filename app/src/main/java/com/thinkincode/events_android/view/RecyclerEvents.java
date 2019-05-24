@@ -3,6 +3,7 @@ package com.thinkincode.events_android.view;
 import android.Manifest;
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -79,17 +80,16 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 Intent intent = new Intent(RecyclerEvents.this, AddEntityActivity.class);
                 intent.putExtra("authenticationToken", authenticationToken);
                 startActivity(intent);
-
+               // LiveDataObserveViewModel();
 
             }
         });
         repositorySingleton = RepositorySingleton.getINSTANCE(this, this);
         //evm = new EventsViewModel(repositorySingleton, this.getApplication(), authenticationToken.getAccessToken());
         setAdapter();
-      /* evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
+       evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
         evm2.init(authenticationToken.getAccessToken());
-        LiveDataObserveViewModel();*/
-        RxJavaObserveFromRepository();
+        LiveDataObserveViewModel();
     }
 
     public void LiveDataObserveViewModel() {
@@ -107,39 +107,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                 });
     }
 
-    public void RxJavaObserveFromRepository() {
-        repositorySingleton
-                .getUserEvents("Bearer " + authenticationToken.getAccessToken())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new
-                                   io.reactivex.Observer<List<Event>>() {
 
-
-                                       @Override
-                                       public void onSubscribe(Disposable d) {
-                                           //              disposables.add(d);
-
-                                       }
-
-                                       @Override
-                                       public void onNext(List<Event> events) {
-                                           eventArrayList.addAll(events);
-                                           adapter.notifyDataSetChanged();
-                                       }
-
-                                       @Override
-                                       public void onError(Throwable e) {
-
-                                       }
-
-                                       @Override
-                                       public void onComplete() {
-
-                                       }
-
-                                   });
-    }
 
 
     @Override
