@@ -88,8 +88,8 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
         //evm = new EventsViewModel(repositorySingleton, this.getApplication(), authenticationToken.getAccessToken());
         setAdapter();
        evm2 = ViewModelProviders.of(this).get(EventsViewModel.class);
-        evm2.init(authenticationToken.getAccessToken());
-        LiveDataObserveViewModel();
+
+      //  RxJavaObserveFromRepository();// no viewmodel so no liveata so no lifecycle awareness
     }
 
     public void LiveDataObserveViewModel() {
@@ -101,6 +101,7 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
                     @Override
                     public void onChanged(@Nullable List<Event> events) {
                         //   List<Event> listEvents = evm2.getObservable().getValue();
+                        eventArrayList.clear();
                         eventArrayList.addAll(events);
                         adapter.notifyDataSetChanged();
                     }
@@ -137,7 +138,10 @@ public class RecyclerEvents extends AppCompatActivity implements UserHistoryAdap
     @Override
     protected void onResume() {
         super.onResume();
-        repositorySingleton = RepositorySingleton.getINSTANCE(this, this);
+        evm2.init(authenticationToken.getAccessToken());
+        LiveDataObserveViewModel();
+
+       // repositorySingleton = RepositorySingleton.getINSTANCE(this, this);
     }
 
     @Override

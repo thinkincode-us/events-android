@@ -188,7 +188,7 @@ public class RepositorySingleton {
             }
         });
     }
-
+/*
     public MutableLiveData getAccountEvents(String token, String id) {
         final MutableLiveData<List<Event>> listEvents = new MutableLiveData<>();
         Call<List<Event>> eventsResult = apiService.getAccountEvents(id, "Bearer " + token);
@@ -208,67 +208,46 @@ public class RepositorySingleton {
         });
         return listEvents;
     }
+    */
 
 
-    public MutableLiveData<List<Event>> getUsers(String token) {
-        final MutableLiveData<List<Event>> listEvents = new MutableLiveData<>();
-
-        Call<List<User>> call = apiService.getUsers("Bearer " + token);
-        call.enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                if (response.body() != null) {
-                    listUsers = response.body();
-                    String id = listUsers.get(0).getId();
-                    listerUserId.onInputSentUserId(id);
-
-                    List<Event> listevents = new ArrayList<>();
-                    listevents.add(new Event("id", "name", "entityId", "entityName"));
-
-                    listevents.add(new Event("id2", "name2", "entityId2", "entityName2"));
-                    //  listEvents = getAccountEvents(token, id);
-
-                    listEvents.setValue(listevents);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                listerAccountEvents.onInputError(t.getMessage());
-            }
-
-
-        });
-        return listEvents;
-    }
-
+//recycler Events
 
     public Observable<List<Event>> getUserEvents(String token) {
-        return apiService.getUsersRxJava(token).doOnNext(user->listerUserId.onInputSentUserId(user.get(0).getId())).flatMap(user -> apiService.getAccountEventsRxJava(user.get(0).getId(), token));
+        return apiService.getUsersRxJava(token).doOnNext(user -> listerUserId.onInputSentUserId(user.get(0).getId())).flatMap(user -> apiService.getAccountEvents(user.get(0).getId(), token));
     }
 
-    // listerUserId.onInputSentUserId(id);
+    // Addactivity
 
-
-
-    public void postAccountEvents(String token, String id, PostEventRequest eventRequest) {
-        Call<Event> CreateEventResult = apiService.postAccountEvents(id, "Bearer " + token, eventRequest);
-        CreateEventResult.enqueue(new Callback<Event>() {
-            @Override
-            public void onResponse(Call<Event> call, Response<Event> response) {
-                if (response.body() != null) {
-                    //response.body();
-                    listerAnswer.onInputSent("");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Event> call, Throwable t) {
-
-            }
-        });
+    public Observable<Event> postAccountEvent(String token, PostEventRequest eventRequest) {
+        return apiService.getUsersRxJava(token)
+                .flatMap(user -> apiService.postAccountEvents(user.get(0).getId(), token, eventRequest));
     }
 
+
+    public Observable<List<Entity>> getEntities(String token) {
+        return apiService.getUsersRxJava( token)
+               // .doOnNext(user ->
+                 //       listerUserId.onInputSentUserId(user.get(0).getId()))
+                .flatMap(user ->
+                        apiService.getEntities(user.get(0).getId(),  token));
+                       /* .doOnNext(entities->
+                                listerEntity.onInputSentAccountEntites(entities)));*/
+
+    }
+
+
+    public Observable<List<Event>> getCatalogEvents(String token,String entityId) {
+        return apiService.getUsersRxJava( token)
+               .flatMap(user ->
+                        apiService.getCatalogEvents(user.get(0).getId(),  token, entityId));
+
+
+
+    }
+
+
+/*
     public void getEntities(String token, String id) {
         Call<List<Entity>> EntitiesResult = apiService.getEntities(id, "Bearer " + token);
         EntitiesResult.enqueue(new Callback<List<Entity>>() {
@@ -290,29 +269,8 @@ public class RepositorySingleton {
         });
     }
 
-    public void getUsersDetails(String token) {
-        Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
 
-        UserResult.enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                if (response.body() != null) {
-                    listUsers = response.body();
-                    String id = listUsers.get(0).getId();
-                    listerUserId.onInputSentUserId(id);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                listerAccountEvents.onInputError(t.getMessage());
-            }
-
-
-        });
-    }
-
-    public void getUsersForEntities(String token) {
+    public void getUsersForEntities2(String token) {
         Call<List<User>> UserResult = apiService.getUsers("Bearer " + token);
 
         UserResult.enqueue(new Callback<List<User>>() {
@@ -351,7 +309,7 @@ public class RepositorySingleton {
 
             }
         });
-    }
+    }*/
 
     public void getPdfEvents(String id, String token) {
         Call<ResponseBody> pdfResult = apiService.getPdfEvents(id, "Bearer " + token);

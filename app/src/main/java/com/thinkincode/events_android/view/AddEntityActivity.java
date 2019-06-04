@@ -1,8 +1,12 @@
 package com.thinkincode.events_android.view;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +23,8 @@ import android.widget.Toast;
 import com.thinkincode.events_android.R;
 import com.thinkincode.events_android.model.AuthenticationToken;
 import com.thinkincode.events_android.model.Entity;
+import com.thinkincode.events_android.viewmodel.AddEventViewModel;
+import com.thinkincode.events_android.viewmodel.EventsViewModel;
 import com.thinkincode.events_android.viewmodel.RepositorySingleton;
 import com.thinkincode.events_android.model.Event;
 import com.thinkincode.events_android.model.PostEventRequest;
@@ -28,8 +34,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AddEntityActivity extends AppCompatActivity implements RepositorySingleton.ListerEntity,
-        RepositorySingleton.ListerAnswer, RepositorySingleton.ListerUserId, RepositorySingleton.ListerCatalogEvents {
+public class AddEntityActivity extends AppCompatActivity  {
 
     private EditText editText_EventName;
     private Button button_SaveEvent;
@@ -45,6 +50,7 @@ public class AddEntityActivity extends AppCompatActivity implements RepositorySi
     private String eventId = "";
     private RecyclerView recyclerViewEntities;
     private RecyclerView recyclerViewEvents;
+    private AddEventViewModel viewmodel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,99 +65,119 @@ public class AddEntityActivity extends AppCompatActivity implements RepositorySi
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerViewEvents = findViewById(R.id.recyclerViewEvents);
         recyclerViewEvents.setLayoutManager(layoutManager2);
-        repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
+        //  repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
 
         Intent intent = getIntent();
         authenticationToken = (AuthenticationToken) intent.getSerializableExtra("authenticationToken");
-        repositorySingleton.getUsersForEntities(authenticationToken.getAccessToken());
+        viewmodel = ViewModelProviders.of(this).get(AddEventViewModel.class);
+        viewmodel.init2(authenticationToken.getAccessToken());
+        LiveDataObserveViewModel4Entites();
 
         button_SaveEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String eventName = editText_EventName.getText().toString();
                 PostEventRequest eventRequest = new PostEventRequest(eventId, eventName, entityId, entityname);
-                repositorySingleton.postAccountEvents(authenticationToken.getAccessToken(), userId, eventRequest);
+                viewmodel.init(authenticationToken.getAccessToken(), eventRequest);
+                LiveDataObserveViewModel();
             }
         });
     }
 
+    public void LiveDataObserveViewModel4Entites() {
+
+        viewmodel.getEntitesObservable().observe(this, new Observer<List<Entity>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Entity> entitieslist) {
+                        entities = entitieslist;
+                        List<String> entityName = new ArrayList<>();
+                        for (Entity entity : entitieslist) {
+                            entityName.add(entity.getName());
+                        }
 
 
-    /*
-    @Override
-    public void onInputSent(CharSequence input) {
-        messageUser(input.toString());
-        if (Messages.SAVE_ENTITY_SUCCESSFUL.toString().equals(input.toString())) {
-            finish();
-        }
-    }*/
+                        CarouselLikeAdpater adapter = new CarouselLikeAdpater(AddEntityActivity.this, entityName) {
+                            @Override
+                            public void theonclick(ViewHolder viewHolder) {
 
-    // public void setSpinner (List<Entity> list) {
-    @Override
-    public void onInputSentAccountEntites(List<Entity> list) {
+                                entityname = viewHolder.name.getText().toString();
+                                for (Entity entitiy : entities) {
 
-        entities = list;
-        List<String> entityName = new ArrayList<>();
-        for (Entity entity : list) {
-            entityName.add(entity.getName());
-        }
+                                    if (entitiy.getName().equals(entityname)) {
+                                        entityId = entitiy.getId();
+                                    }
+                                }
+                                //repositorySingleton.getCatalogEvents(userId, authenticationToken.getAccessToken(), entityId);
+                                viewmodel.init3(authenticationToken.getAccessToken(), entityId);
+                                LiveDataObserveViewModel4Events();
+                            }
+                        };
 
-
-        CarouselLikeAdpater adapter = new CarouselLikeAdpater(this, entityName) {
-            @Override
-            public void theonclick(ViewHolder viewHolder) {
-
-                entityname = viewHolder.name.getText().toString();
-                for (Entity entitiy : entities) {
-
-                    if (entitiy.getName().equals(entityname)) {
-                        entityId = entitiy.getId();
+                        recyclerViewEntities.setAdapter(adapter);
                     }
                 }
-                repositorySingleton.getCatalogEvents(userId, authenticationToken.getAccessToken(), entityId);
-            }
-        };
 
-        recyclerViewEntities.setAdapter(adapter);
+
+        );
     }
 
-    @Override
-    public void onInputSentCatalogEvents(List<Event> listEvents) {
-        events = listEvents;
-        List<String> eventsName = new ArrayList<>();
-        for (Event event : listEvents) {
-            eventsName.add(event.getName());
-        }
 
-        CarouselLikeAdpater adapter = new CarouselLikeAdpater(this, eventsName) {
-            @Override
-            public void theonclick(ViewHolder viewHolder) {
-                String eventname = viewHolder.name.getText().toString();
-                editText_EventName.setText(eventname);
+    public void LiveDataObserveViewModel() {
+
+        viewmodel.getUserObservable().observe(this,
 
 
-                for (Event event : events) {
-
-                    if (event.getName().equals(eventname)) {
-                        eventId = event.getId();
+                new Observer<Event>() {
+                    @Override
+                    public void onChanged(@Nullable Event event) {
+                        //   List<Event> listEvents = evm2.getObservable().getValue();
+                        finish();
                     }
+                });
+    }
+
+
+    public void LiveDataObserveViewModel4Events() {
+        viewmodel.getEventsObservable().observe(this, new Observer<List<Event>>() {
+            @Override
+            public void onChanged(@Nullable List<Event> listEvents) {
+
+                events = listEvents;
+                List<String> eventsName = new ArrayList<>();
+                for (Event event : listEvents) {
+                    eventsName.add(event.getName());
                 }
+
+                CarouselLikeAdpater adapter = new CarouselLikeAdpater(AddEntityActivity.this, eventsName) {
+                    @Override
+                    public void theonclick(ViewHolder viewHolder) {
+                        String eventname = viewHolder.name.getText().toString();
+                        editText_EventName.setText(eventname);
+
+
+                        for (Event event : events) {
+
+                            if (event.getName().equals(eventname)) {
+                                eventId = event.getId();
+                            }
+                        }
+                    }
+
+                };
+                recyclerViewEvents.setAdapter(adapter);
             }
+        });
 
-        };
-        recyclerViewEvents.setAdapter(adapter);
-    }
-
-    @Override
-    public void onInputError(String error) {
 
     }
+
+
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
+        // repositorySingleton = RepositorySingleton.getINSTANCE(this, this, this, this);
     }
 
     @Override
@@ -166,16 +192,6 @@ public class AddEntityActivity extends AppCompatActivity implements RepositorySi
 
 
 
-    @Override
-    public void onInputSentUserId(
-            String userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public void onInputSent(CharSequence input) {
-        finish();
-    }
 
 
     public class CarouselLikeAdpater extends RecyclerView.Adapter<CarouselLikeAdpater.ViewHolder> {
